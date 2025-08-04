@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+celery
+redis
+prometheus_client
+prometheus-fastapi-instrumentator
+jinja2
+python-multipart
+google-generativeai

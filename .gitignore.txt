@@ -1,0 +1,49 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*build/
+*develop-eggs/
+*dist/
+*downloads/
+*eggs/
+*.egg-info/
+*lib/
+*lib64/
+*parts/
+*sdist/
+*var/
+*wheels/
+*.egg
+*pip-wheel-metadata/
+
+# Environment variables
+.env
+*.env
+
+# SQLite Database
+# This should not be version controlled. The app creates it automatically.
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# IDE and editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Volatility output and upload folders
+# These are generated at runtime, so they shouldn't be in the repo.
+uploads/
+outputs/
+
+# Docker
+.dockerignore
+
+# macOS
+.DS_Store

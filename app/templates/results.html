@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis Results</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
+        h2 { color: #2c3e50; }
+        #results { max-width: 900px; margin: auto; }
+        .task { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .task-header { font-size: 1.3em; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .task-header strong { color: #1a2533; }
+        .task-header em { color: #5a7d9a; }
+        .status { font-weight: bold; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; }
+        .status-completed { background-color: #e7f4e4; color: #2d6a4f; }
+        .status-pending, .status-started { background-color: #fff4e0; color: #b45309; }
+        .status-failed { background-color: #fde2e2; color: #9b2c2c; }
+        .analysis-section { margin-top: 15px; }
+        .analysis-section h3 { font-size: 1.1em; color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 5px; margin-top: 20px; }
+        .summary { font-style: italic; color: #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f9f9f9; }
+        .recommendations ul { padding-left: 20px; }
+        .recommendations li { margin-bottom: 5px; }
+        pre { background-color: #2d2d2d; color: #f1f1f1; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h2>Latest Analysis Results</h2>
+    <div id="results">Loading...</div>
+
+    <script>
+        function renderAnalysis(analysisData) {
+            if (typeof analysisData !== 'object' || analysisData === null) {
+                return `<div class="analysis-section"><pre>${analysisData || 'Analysis pending...'}</pre></div>`;
+            }
+
+            let html = `<div class="analysis-section">`;
+            
+            if (analysisData.summary) {
+                html += `<h3>Summary</h3><p class="summary">${analysisData.summary}</p>`;
+            }
+
+            if (analysisData.suspicious_processes && analysisData.suspicious_processes.length > 0) {
+                html += `<h3>Suspicious Processes</h3><table>`;
+                html += `<tr><th>PID</th><th>PPID</th><th>Process Name</th><th>Reason for Suspicion</th></tr>`;
+                analysisData.suspicious_processes.forEach(proc => {
+                    html += `<tr>
+                        <td>${proc.pid || 'N/A'}</td>
+                        <td>${proc.ppid || 'N/A'}</td>
+                        <td>${proc.process_name || 'N/A'}</td>
+                        <td>${proc.reason_for_suspicion || 'N/A'}</td>
+                    </tr>`;
+                });
+                html += `</table>`;
+            }
+
+            if (analysisData.recommendations && analysisData.recommendations.length > 0) {
+                html += `<h3>Recommendations</h3><div class="recommendations"><ul>`;
+                analysisData.recommendations.forEach(rec => {
+                    html += `<li>${rec}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+            
+            html += `</div>`;
+            return html;
+        }
+
+        async function loadResults() {
+            try {
+                // CORRECTED: Using a relative URL for the API call.
+                const res = await fetch("/results/all");
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+                const data = await res.json();
+                const container = document.getElementById("results");
+                container.innerHTML = "";
+
+                if (data.length === 0) {
+                    container.innerText = "No results yet.";
+                    return;
+                }
+
+                data.forEach(task => {
+                    const taskDiv = document.createElement("div");
+                    taskDiv.classList.add("task");
+
+                    const statusClass = `status-${(task.status || 'pending').toLowerCase()}`;
+                    
+                    let header = `
+                        <div class="task-header">
+                            <div><strong>${task.plugin}</strong> on <em>${task.image}</em></div>
+                            <span class="status ${statusClass}">${task.status}</span>
+                        </div>`;
+                    
+                    // CORRECTED: Using a relative URL for the download link.
+                    if (task.status === "COMPLETED" || task.status === "FAILED") {
+                         header += `<a href="/download/${task.task_id}" target="_blank">Download Raw Output</a>`;
+                    }
+                    
+                    let analysisContent = '';
+                    if (task.gemini_analysis) {
+                        try {
+                            const analysisJson = JSON.parse(task.gemini_analysis);
+                            analysisContent = renderAnalysis(analysisJson);
+                        } catch (e) {
+                            analysisContent = renderAnalysis(task.gemini_analysis);
+                        }
+                    } else {
+                        analysisContent = renderAnalysis(null);
+                    }
+                    
+                    taskDiv.innerHTML = header + analysisContent;
+                    container.appendChild(taskDiv);
+                });
+            } catch (error) {
+                console.error("Failed to load results:", error);
+                document.getElementById("results").innerText = "Error loading results. Check the console for details.";
+            }
+        }
+
+        window.onload = loadResults;
+        setInterval(loadResults, 5000); // Refresh every 5 seconds
+    </script>
+</body>
+</html>
+
