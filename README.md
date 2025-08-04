@@ -8,6 +8,8 @@ The entire application is containerized with Docker and includes a full observab
 
 The application is built on a microservices-oriented architecture using FastAPI, Celery, Redis, and a full monitoring stack.
 
+![WorkFlow Diagram](WorkFlow.png)
+
 -   **FastAPI**: Serves the frontend UI and the main API endpoints.
 -   **Celery**: Manages background tasks for long-running Volatility analysis.
 -   **Redis**: Acts as both a message broker and a result backend for Celery.
