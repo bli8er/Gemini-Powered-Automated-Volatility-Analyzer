@@ -38,8 +38,8 @@ The application is built on a microservices-oriented architecture using FastAPI,
 
 1.  **Clone the Repository**
     ```bash
-    git clone <your-repo-url>
-    cd <your-repo-directory>
+    git clone https://github.com/bli8er/Gemini-Powered-Automated-Volatility-Analyzer.git
+    cd Gemini-Powered-Automated-Volatility-Analyzer
     ```
 
 2.  **Create an Environment File**
