@@ -1,4 +1,4 @@
-# Volatility Memory Analysis Web Service (MCP)
+# Gemini Powered Automated Volatility Analyzer
 
 This project is a comprehensive web service for automating digital forensics memory analysis using Volatility 3. It provides a user-friendly web interface to upload memory dumps, run various Volatility plugins, and view the results, which are further analyzed by Google's Gemini AI for suspicious indicators.
 
